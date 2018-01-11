@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<link rel="stylesheet" type="text/css" href="/static/css/easyui.css" />
+		<link rel="stylesheet" href="/static/css/login.css" />
+		<style>
+			body {
+				margin: 50px 0;
+				text-align: center;
+				font-family: "PingFangSC-Regular", "Open Sans", Arial, "Hiragino Sans GB", "Microsoft YaHei", "STHeiti", "WenQuanYi Micro Hei", SimSun, sans-serif;
+			}
+			.inp {
+				border: 1px solid #cccccc;
+				border-radius: 2px;
+				padding: 0 10px;
+				width: 278px;
+				height: 40px;
+				font-size: 18px;
+			}
+			.btn {
+				border: 1px solid #cccccc;
+				border-radius: 2px;
+				width: 100px;
+				height: 40px;
+				font-size: 16px;
+				color: #666;
+				cursor: pointer;
+				background: white linear-gradient(180deg, #ffffff 0%, #f3f3f3 100%);
+			}
+			.btn:hover {
+				background: white linear-gradient(0deg, #ffffff 0%, #f3f3f3 100%)
+			}
+			#captcha1,
+			#captcha2 {
+				width: 300px;
+				display: inline-block;
+			}
+			.show {
+				display: block;
+			}
+			.hide {
+				display: none;
+			}
+			#notice1,
+			#notice2 {
+				color: red;
+			}
+			label {
+				vertical-align: top;
+				display: inline-block;
+				width: 80px;
+				text-align: right;
+			}
+			#wait1, #wait2 {
+				text-align: left;
+				color: #666;
+				margin: 0;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div class="second_body">
+			<form id="ff">
+				<div class="logo"></div>
+				<div class="title-zh">车贷信息管理系统</div>
+				<div class="title-en" style="">Enterprise Information Manage System</div>
+				<div class="message" data-bind="html:message"></div>
+				<table border="0" style="width:300px;">
+					<tr>
+						<td style="white-space:nowrap; padding-bottom: 5px;width:55px;">登陆名：</td>
+						<td colspan="2"><input type="text" id="username" class="login" /></td>
+					</tr>
+					<tr>
+						<td class="lable" style="white-space:nowrap; letter-spacing: 0.5em; vertical-align: middle">密码：</td>
+						<td colspan="2"><input type="password" id="password" class="login" /></td>
+					</tr>
+					<tr>
+						<td style="white-space:nowrap; padding-bottom: 5px;width:30px;">验证码：</td>
+						<td>
+						<div id="code">
+							<div id="captcha2" style="width: 207px">
+								<p id="wait2" class="show">正在加载验证码......</p>
+							</div>
+						</div>
+
+						<br>
+						<p id="notice2" class="hide">请先完成验证</p>
+						</td>
+					</tr>
+					<tr>
+						<td colspan="3" style="text-align:center">
+							<input type="Submit" value="登录" class="login_button" id="login_button" />
+							<input type="reset" value="重置" class="reset_botton" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+		<script type="text/javascript" src="/static/js/jquery-1.8.0.min.js"></script>
+		<!--<script src="/static/js/login.js"></script>-->
+		<script type="text/javascript" src="/static/js/gt.js"></script>
+		<script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+		<script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+	<script type="text/javascript" src="/static/js/code.js"></script>
+	</body>
+</html>

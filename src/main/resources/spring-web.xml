@@ -1,0 +1,68 @@
+<?org.project.xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+
+    <!-- 开启springmvc注解支持 -->
+    <context:component-scan base-package="org.project.loan">
+        <!-- 在自动扫描过滤中，如果扫描到使用了@Service，@Repository的JAVA类，
+将不会让他们纳入到springmvc容器中来
+进行管理 -->
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+    </context:component-scan>
+
+    <mvc:annotation-driven/>
+    <!--定义静态资源包，目的是：满足/static/**格式的请求，不需要去查找映射 关系-->
+    <mvc:resources location="/static/" mapping="/static/**"></mvc:resources>
+    <!--配置拦截器链-->
+    <!--<mvc:interceptors>-->
+
+        <!--<mvc:interceptor>-->
+            <!--<mvc:mapping path="/register/reg"/>-->
+            <!--<bean class="org.project.ssh.usermag.interceptor.FirstInterceptor"></bean>-->
+        <!--</mvc:interceptor>-->
+
+    <!--</mvc:interceptors>-->
+    <!-- 开启springmvc注解支持之后，
+不需要再配置HandleMapping，HandleAdapter，因为默认会采用：
+    AnnotationMethodHandlerAdapter
+    DefaultAnnotationHandlerMapping
+ -->
+    <mvc:annotation-driven/>
+    <!-- 声明spring容器提供的转换工厂类，工厂类的作用：生产一个又一个的转换工具类的实例 -->
+    <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+        <!-- 日期格式转换 -->
+        <property name="webBindingInitializer">
+            <bean class="org.project.loan.mainmag.convert.UtilsDateConverter"/>
+        </property>
+    </bean>
+    <!-- 配置一个试图解析器ViewResolver(应用控制器) -->
+    <bean id="internalResourceViewResolver"
+          class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <!-- 如果你的页面使用到了JSTL技术，需要指定JstlView类来专门解析 -->
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+        <property name="prefix" value="/"></property>
+        <property name="suffix" value=".html"></property>
+    </bean>
+    <!--文件上传解析器,multipartResolver为固定的ID，不能修改-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--文件上床过程中，所有文件的最大容量，单位是byte，设置为-1时，表示不做限制-->
+        <property name="maxUploadSize" value="104857600"></property>
+        <!--文件上传过程中，单个文件的最大容量-->
+        <property name="maxUploadSizePerFile" value="10485760"></property>
+        <!--文件上传过程中采用的字符编码集-->
+        <property name="defaultEncoding" value="utf-8"></property>
+        <!--设置每次读取文件时，能够读取的最大容量-->
+        <property name="maxInMemorySize" value="10240"></property>
+    </bean>
+
+</beans>
