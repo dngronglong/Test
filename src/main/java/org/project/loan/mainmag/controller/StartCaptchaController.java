@@ -1,7 +1,7 @@
 package org.project.loan.mainmag.controller;
 
 
-import org.project.utils.GeetestLib;
+import org.project.loan.utils.GeetestLib;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;

@@ -1,11 +1,10 @@
 package org.project.loan.mainmag.controller;
 
-import org.project.utils.GetUrl;
+import org.project.loan.utils.GetUrl;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-import java.rmi.RemoteException;
 
 @Controller
 @RequestMapping("/weather")

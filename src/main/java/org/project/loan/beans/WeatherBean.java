@@ -1,4 +1,4 @@
-package org.project.beans;
+package org.project.loan.beans;
 
 public class WeatherBean {
     /**

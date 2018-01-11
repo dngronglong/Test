@@ -1,4 +1,4 @@
-package org.project.utils;
+package org.project.loan.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -5,20 +5,59 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
 	http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
 
-
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>classpath:applicationContext.xml</param-value>
+  </context-param>
   <!-- rest web service -->
   <!--<context-param>-->
     <!--<param-name>contextConfigLocation</param-name>-->
     <!--<param-value>classpath*:beans.xml</param-value>-->
   <!--</context-param>-->
 
-  <!--<listener>-->
-    <!--<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>-->
-  <!--</listener>-->
+  <!-- 启动spring容器，为除了web层的组件提供一个运行环境，并且将容器中的组件，告知给tomcat容器 -->
+  <listener>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  </listener>
 
+  <!-- 配置字符编码集过滤器 -->
+  <filter>
+    <filter-name>encoding</filter-name>
+    <filter-class>org.project.loan.filter.EncodingFilter</filter-class>
+    <init-param>
+      <param-name>encoding</param-name>
+      <param-value>utf-8</param-value>
+    </init-param>
+    <init-param>
+      <param-name>forceEncoding</param-name>
+      <param-value>true</param-value>
+    </init-param>
+  </filter>
+  <!-- 如果需要使用PUT/DELETE需要配置如下过滤器
+  目的是将表单数据能够正常的通过消息体传输 -->
+  <filter>
+    <filter-name>httpPutFormContentFilter</filter-name>
+    <filter-class>org.springframework.web.filter.HttpPutFormContentFilter</filter-class>
+  </filter>
 
+  <!-- 配置OpenSessionInViewFilter，解决hibernate延迟加载时，抛出的no session问题 -->
+  <!--<filter>-->
+    <!--<filter-name>openSessionInViewFilter</filter-name>-->
+    <!--<filter-class>org.springframework.orm.hibernate4.support.OpenSessionInViewFilter</filter-class>-->
+  <!--</filter>-->
 
-  <!-- 传统意义上的WEB Service接口只需要配置如下即可 -->
+  <filter-mapping>
+    <filter-name>encoding</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <!--<filter-mapping>-->
+    <!--<filter-name>openSessionInViewFilter</filter-name>-->
+    <!--<url-pattern>/*</url-pattern>-->
+  <!--</filter-mapping>-->
+  <filter-mapping>
+    <filter-name>httpPutFormContentFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
 
   <servlet>
     <servlet-name>weather</servlet-name>

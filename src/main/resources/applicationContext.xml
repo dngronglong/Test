@@ -6,6 +6,7 @@
        xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:cache="http://www.springframework.org/schema/cache"
        xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xsi:schemaLocation="http://www.springframework.org/schema/beans
         http://www.springframework.org/schema/beans/spring-beans.xsd
         http://www.springframework.org/schema/context
@@ -15,19 +16,21 @@
         http://www.springframework.org/schema/tx
         http://www.springframework.org/schema/tx/spring-tx.xsd
         http://www.springframework.org/schema/cache
-        http://www.springframework.org/schema/cache/spring-cache.xsd">
+        http://www.springframework.org/schema/cache/spring-cache.xsd
+        http://www.springframework.org/schema/data/jpa
+        http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
     <!-- spring和ehcache的整合，将会让我们不用再去担心持久层到底用的什么缓存技术 -->
-    <cache:annotation-driven cache-manager="cacheManager"/>
-    <bean id="cacheManager"
-          class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcache"/>
+    <!--<cache:annotation-driven cache-manager="cacheManager"/>-->
+    <!--<bean id="cacheManager"-->
+          <!--class="org.springframework.cache.ehcache.EhCacheCacheManager" p:cache-manager-ref="ehcache"/>-->
 
-    <bean id="ehcache"
-          class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" p:config-location="ehcache.xml"/>
+    <!--<bean id="ehcache"-->
+          <!--class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" p:config-location="ehcache.xml"/>-->
 
     <!-- 开启自动扫描,并且要剔除web层组件 -->
     <context:component-scan base-package="org.project.loan">
-        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller">mysql.properties</context:exclude-filter>
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"></context:exclude-filter>
     </context:component-scan>
     <!-- 引入外部mysql.properties 数据库配置文件 -->
     <context:property-placeholder location="classpath:mysql.properties"
@@ -64,71 +67,75 @@
         <property name="preferredTestQuery" value="select now() from dual"></property>
     </bean>
 
-    <!-- 配置SessionFactory -->
-    <bean id="sessionFactory"
-          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+    <bean id="localEntityManagerFactoryBean" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSource"></property>
-
-        <!-- 设置hibernate私有属性 -->
-        <property name="hibernateProperties">
-            <props>
-                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
-                <prop key="hibernate.show_sql">true</prop>
-                <prop key="hibernate.format_sql">true</prop>
-            </props>
+        <!-- 配置JPA采用Hibernate底层框架实现 -->
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"></bean>
         </property>
-
-        <!-- packagesToScan 用于扫描使用JPA规范,完成ORM映射的那些JavaBean -->
+        <!-- 扫描ORM映射关系 -->
         <property name="packagesToScan">
             <list>
-                <value>org.project.beans</value>
-                <!-- <value>org.framestudy.sh.beans</value> -->
+                <value>org.project.loan.beans</value>
             </list>
         </property>
-
-        <!-- mappingDirectoryLocations 用于扫描使用XML,完成ORM映射的那些XXX.hbm.xml <property
-            name="mappingDirectoryLocations"> <list> <value>org/framestudy/sh/xmls</value>
-            </list> </property> -->
+        <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+            </props>
+        </property>
     </bean>
 
-    <!-- 配置事物管理器 -->
-    <bean id="txManager"
-          class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory"></property>
+    <!-- 配置事务管理器,并且ID必须为：transactionManager -->
+    <bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="localEntityManagerFactoryBean"></property>
     </bean>
 
-    <!-- 配置spring管理事务的2种方案： 编程式，声明式(注解版，AOP) -->
-    <tx:advice id="txAdvice" transaction-manager="txManager">
+    <!-- spring声明式事务管理方式，企业应用开发推荐 -->
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
             <tx:method name="*" read-only="true" />
+            <!-- propagation="REQUIRED" 事务的传播需要事务管理
+             isolation="REPEATABLE_READ" 事务的隔离级别选择可重复读
+             rollback-for="java.lang.Exception"异常的情况下回滚
+             read-only="false" 将连接修改为可写
+             -->
+            <tx:method name="save*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
+            <tx:method name="insert*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
+            <tx:method name="add*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
 
-            <tx:method name="add*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-            <tx:method name="save*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-            <tx:method name="insert*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-            <tx:method name="create*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
+            <tx:method name="update*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
+            <tx:method name="modify*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
+            <tx:method name="change*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
 
+            <tx:method name="delete*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
+            <tx:method name="remove*" propagation="REQUIRED" isolation="REPEATABLE_READ" rollback-for="java.lang.Exception" read-only="false"/>
 
-            <tx:method name="update*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-            <tx:method name="modify*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-            <tx:method name="change*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-
-            <tx:method name="delete*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-            <tx:method name="del*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-            <tx:method name="remove*" read-only="false" isolation="DEFAULT"
-                       propagation="REQUIRED" rollback-for="java.lang.Exception" />
-
+            <tx:method name="find*" propagation="SUPPORTS"/>
+            <tx:method name="query*" propagation="SUPPORTS"/>
+            <tx:method name="get*" propagation="SUPPORTS"/>
+            <tx:method name="search*" propagation="SUPPORTS"/>
+            <tx:method name="select*" propagation="SUPPORTS"/>
         </tx:attributes>
     </tx:advice>
 
+
+    <!-- 将JPA接口与SessionFactory进行关联 -->
+    <jpa:repositories base-package="org.project.loan" entity-manager-factory-ref="localEntityManagerFactoryBean">
+    </jpa:repositories>
+    <!--配置sqlsessionFactory-->
+
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!--<property name="configLocation" value="classpath:mybitsConfig.xml"></property>-->
+        <!--<property name="typeAliasesPackage" value="com.cnblogs.yjmyzz.entity"></property>-->
+    </bean>
+
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.project.loan.mainmag.mapper" />
+    </bean>
     <aop:config>
         <aop:pointcut id="expression"
                       expression="execution(* org.project.loan.*mag.service.impl.*ServiceImpl.*(..))" />
